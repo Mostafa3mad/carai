@@ -57,7 +57,9 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
         # data["is_approved"] = instance.is_approved
         data.pop('password', None)
 
-        return data
+        # return data
+        return {"message": f"Welcome, {instance.username} Your account has been registered successfully!"}
+
 
 #rate serializers
 class DoctorReviewSerializer(serializers.ModelSerializer):
