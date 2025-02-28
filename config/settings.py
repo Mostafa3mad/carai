@@ -46,7 +46,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    # 'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -78,13 +78,13 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'register_user.CustomUser'
 
 
-JAZZMIN_SETTINGS = {
-    "site_title": "Django Admin",
-    "site_header": "Admin Dashboard",
-    "site_brand": "My Site",
-    "welcome_sign": "Welcome to My Admin Panel",
-    "show_dashboard": True,
-}
+# JAZZMIN_SETTINGS = {
+#     "site_title": "Django Admin",
+#     "site_header": "Admin Dashboard",
+#     "site_brand": "My Site",
+#     "welcome_sign": "Welcome to My Admin Panel",
+#     "show_dashboard": True,
+# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
