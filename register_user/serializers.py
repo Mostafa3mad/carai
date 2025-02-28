@@ -57,8 +57,12 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
         # data["is_approved"] = instance.is_approved
         data.pop('password', None)
 
-        # return data
-        return {"message": f"Welcome, {instance.username} Your account has been registered successfully!"}
+        if getattr(instance, "role", None) == "doctor":
+            return {
+                "message": f"Welcome, Dr. {instance.username}. Your account is successfully registered!",
+                "note": "Your profile is under review by the administrator."
+            }
+        return {"message": f"Welcome, mr. {instance.username} Your account has been registered successfully!"}
 
 
 #rate serializers

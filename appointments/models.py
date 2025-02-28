@@ -23,11 +23,12 @@ class Appointment(models.Model):
 
     patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='appointments')
     doctor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='doctor_appointments')
-    appointment_date = models.DateTimeField()
+    weekday = models.ForeignKey(Weekday, on_delete=models.CASCADE)  # إضافة هذا الحقل لربط اليوم
+    appointment_time = models.TimeField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"Appointment of {self.patient.username} with {self.doctor.username} on {self.appointment_date}"
+        return f"Appointment of {self.patient.username} with {self.doctor.username} on {self.weekday}"
 
 
 class DoctorAvailability(models.Model):

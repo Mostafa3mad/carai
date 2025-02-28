@@ -1,13 +1,37 @@
 from rest_framework import serializers
 from .models import Appointment,DoctorAvailability,Weekday
+from datetime import datetime
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient = serializers.CharField(source='patient.username', read_only=True)
+    doctor = serializers.CharField(source='doctor.username', read_only=True)  # عرض اسم الطبيب
     status = serializers.CharField(read_only=True)
+    day = serializers.CharField(write_only=True)  # اليوم مثل Sunday
+    time = serializers.CharField(write_only=True)  # الموعد مثل 06:00:00
 
     class Meta:
         model = Appointment
-        fields = ['id', 'patient', 'doctor', 'appointment_date', 'status']
+        fields = ['id', 'patient', 'doctor', 'status', 'day', 'time']
+
+    def create(self, validated_data):
+        """
+        Override the create method to handle the conversion of `day` and `time`
+        to `appointment_date`.
+        """
+        # الحصول على اليوم و الوقت من validated_data
+        day = validated_data.pop('day')
+        time = validated_data.pop('time')
+
+        # تحويل اليوم و الوقت إلى تاريخ كامل
+        appointment_date_str = f"{day} {time}"
+        appointment_date = datetime.strptime(appointment_date_str, "%A %H:%M:%S")
+
+        # إضافة `appointment_date` إلى validated_data
+        validated_data['appointment_date'] = appointment_date
+
+        # إنشاء الموعد باستخدام `appointment_date` و البيانات الأخرى
+        appointment = super().create(validated_data)
+        return appointment
 
 class WeekdaySerializer(serializers.ModelSerializer):
     class Meta:

@@ -42,7 +42,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -62,7 +62,6 @@ INSTALLED_APPS = [
 
 
 
-
     "rest_framework.authtoken",
     "rest_registration",
     'rest_framework',
@@ -73,6 +72,15 @@ INSTALLED_APPS = [
 
 ]
 AUTH_USER_MODEL = 'register_user.CustomUser'
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Django Admin",
+    "site_header": "Admin Dashboard",
+    "site_brand": "My Site",
+    "welcome_sign": "Welcome to My Admin Panel",
+    "show_dashboard": True,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -3,7 +3,7 @@ from .models import Appointment, DoctorAvailability,Weekday
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ['doctor', 'patient', 'appointment_date', 'status']  # إظهار الطبيب، المريض، الموعد، والحالة في الـ Admin
+    list_display = ['doctor', 'patient', 'weekday','appointment_time','status']  # إظهار الطبيب، المريض، الموعد، والحالة في الـ Admin
     list_filter = ['doctor', 'status']  # يمكن تصفية المواعيد حسب الطبيب أو الحالة
     search_fields = ['doctor__username', 'patient__username']  # إضافة البحث حسب الطبيب أو المريض
 
