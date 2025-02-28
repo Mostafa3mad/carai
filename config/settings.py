@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-hb(m^t+2m0*m+o5#z_em3m7&8*$dczjc8uayykog3t1)03ti1$
 # DEBUG = config('DEBUG', cast=bool)
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['mostafa3mad.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
