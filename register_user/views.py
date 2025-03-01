@@ -8,9 +8,36 @@ from .serializers import SpecializationListSerializer, SpecializationDetailSeria
 from .filters import SpecializationFilter, DoctorFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .Pagination import DoctorPagination
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
 
+
+
+class LoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh_token')
+            if not refresh_token:
+                return Response({'error':'refresh_token is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"detail": "Successfully logged out"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": "Invalid Token"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):

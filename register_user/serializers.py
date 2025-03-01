@@ -3,6 +3,33 @@ from rest_registration.api.serializers import DefaultRegisterUserSerializer,Defa
 from .models import CustomUser, Specialization
 from rest_framework import serializers
 from rating.models import DoctorReview
+from rest_framework.exceptions import AuthenticationFailed
+
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        data['user_id'] = self.user.id
+        data['username'] = self.user.username
+        data['role'] = self.user.role
+        if self.user.role == 'doctor' and not self.user.is_approved:
+            raise AuthenticationFailed(
+                'Your account is under review by the admin.')
+        data['refresh'] = str(self.get_token(self.user))
+        data['access'] = data['access']
+
+        return data
+
+
+
+
+
+
+
+
 
 class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
     specialization = serializers.PrimaryKeyRelatedField(queryset=Specialization.objects.all(), required=False)
