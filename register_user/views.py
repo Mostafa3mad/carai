@@ -46,6 +46,7 @@ class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = SpecializationFilter
     search_fields = ['name']
     permission_classes = [AllowAny]
+    pagination_class = None
 
     def get_serializer_class(self):
         """استخدام `SpecializationListSerializer` للقائمة و `SpecializationDetailSerializer` عند تحديد تخصص"""
