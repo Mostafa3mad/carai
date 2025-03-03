@@ -10,7 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .Pagination import DoctorPagination
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
@@ -45,6 +45,7 @@ class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = SpecializationFilter
     search_fields = ['name']
+    permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         """استخدام `SpecializationListSerializer` للقائمة و `SpecializationDetailSerializer` عند تحديد تخصص"""
