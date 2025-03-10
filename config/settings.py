@@ -232,6 +232,10 @@ REST_REGISTRATION = {
 
 
 
+AUTHENTICATION_BACKENDS = (
+    'register_user.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 
 

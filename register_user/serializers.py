@@ -4,25 +4,49 @@ from .models import CustomUser, Specialization
 from rest_framework import serializers
 from rating.models import DoctorReview
 from rest_framework.exceptions import AuthenticationFailed
-
-
+from django.db.models import Q
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import ModelBackend
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+
+
+
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+
     def validate(self, attrs):
+        # الحصول على الـ username أو الإيميل
+        username_or_email = attrs.get('username')  # نبحث عن المستخدم باستخدام 'username'
+
+        # استدعاء validate method من EmailBackend للتحقق من البيانات
+        try:
+            user = get_user_model().objects.get(
+                Q(username=username_or_email) | Q(email=username_or_email)
+            )
+        except get_user_model().DoesNotExist:
+            raise AuthenticationFailed('No active account found with the given credentials')
+
+        # تعيين الـ user
+        self.user = user
+
+        # استدعاء الكود الأساسي للـ validate
         data = super().validate(attrs)
 
+        # إضافة بيانات المستخدم إلى الـ response
         data['user_id'] = self.user.id
         data['username'] = self.user.username
         data['role'] = self.user.role
+
+        # التحقق إذا كان الحساب تحت المراجعة
         if self.user.role == 'doctor' and not self.user.is_approved:
-            raise AuthenticationFailed(
-                'Your account is under review by the admin.')
+            raise AuthenticationFailed('Your account is under review by the admin.')
+
+        # إضافة التوكنات
         data['refresh'] = str(self.get_token(self.user))
         data['access'] = data['access']
 
         return data
-
 
 
 
