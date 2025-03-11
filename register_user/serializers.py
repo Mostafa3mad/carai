@@ -25,7 +25,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 Q(username=username_or_email) | Q(email=username_or_email)
             )
         except get_user_model().DoesNotExist:
-            raise AuthenticationFailed('No active account found with the given credentials')
+            raise AuthenticationFailed({"message": "No active account found with the given credentials"})  # تغيير الحقل إلى "message"
 
         # تعيين الـ user
         self.user = user
@@ -38,9 +38,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['username'] = self.user.username
         data['role'] = self.user.role
 
-        # التحقق إذا كان الحساب تحت المراجعة
+
+
+
         if self.user.role == 'doctor' and not self.user.is_approved:
-            raise AuthenticationFailed('Your account is under review by the admin.')
+            raise AuthenticationFailed({"message": "Your account is under review by the admin."})
 
         # إضافة التوكنات
         data['refresh'] = str(self.get_token(self.user))
