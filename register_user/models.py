@@ -19,6 +19,7 @@ class CustomUser(AbstractUser):
     is_approved = models.BooleanField(default=True)
 
 
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True, default='profile_pics/default_profile_pic.jpg')
 
 
     def __str__(self):
@@ -28,6 +29,10 @@ class CustomUser(AbstractUser):
 #Specialization
 class Specialization(models.Model):
     name = models.CharField(max_length=100, unique=True)
+
+
+
+    image = models.ImageField(upload_to='specialization_pics/', null=True, blank=True, default='specialization_pics/default_specialization_pic.jpg')
 
     def __str__(self):
         return self.name

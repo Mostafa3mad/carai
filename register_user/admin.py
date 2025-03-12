@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.apps import apps
 from .models import CustomUser,Specialization
+from django.utils.html import mark_safe
 
 
 class IsApprovedFilter(admin.SimpleListFilter):
@@ -25,7 +26,7 @@ class IsApprovedFilter(admin.SimpleListFilter):
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender','role','specialization','is_approved','is_active', 'date_joined')
+    list_display = ('profile_picture_thumbnail','username', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender','role','specialization','is_approved','is_active', 'date_joined')
     search_fields = ('username', 'email')
     list_filter = ('is_active', 'gender', 'role', 'specialization', IsApprovedFilter)  # إضافة الفلتر الجديد
     ordering = ('-date_joined',)
@@ -34,7 +35,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('username', 'password', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender')
+            'fields': ('username', 'password', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender', 'profile_picture')
         }),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'is_approved')
@@ -52,7 +53,22 @@ class CustomUserAdmin(admin.ModelAdmin):
 
     approve_doctors.short_description = "Approve selected doctors"
 
+    def profile_picture_thumbnail(self, obj):
+        if obj.profile_picture:
+            return mark_safe(f'<img src="{obj.profile_picture.url}" width="50" height="50" />')
+        return "No image"
+
+    profile_picture_thumbnail.short_description = 'Profile Picture'
 
 @admin.register(Specialization)
 class SpecializationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('image_thumbnail','id', 'name', )
+    search_fields = ('name',)
+
+    def image_thumbnail(self, obj):
+        """عرض صورة التخصص بشكل مصغر في الواجهة"""
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" width="50" height="50" />')
+        return "No image"
+
+    image_thumbnail.short_description = 'Specialization Image'

@@ -132,19 +132,21 @@ class DoctorReviewSerializer(serializers.ModelSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     reviews = DoctorReviewSerializer(source='doctor_reviews', many=True, read_only=True)  # إضافة التقييمات للطبيب
     specialization = serializers.CharField(source='specialization.name', read_only=True)
+    profile_picture = serializers.ImageField(read_only=True)  # إضافة الصورة
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'specialization', 'consultation_price', 'location', 'reviews']
+        fields = ['id','profile_picture','username', 'email', 'specialization', 'consultation_price', 'location', 'reviews']
 
 
 
 class SpecializationListSerializer(serializers.ModelSerializer):
     doctor_count = serializers.SerializerMethodField()
+    image = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Specialization
-        fields = ['id', 'name', 'doctor_count']
+        fields = ['id', 'image', 'name', 'doctor_count']
 
     def get_doctor_count(self, obj):
         """إرجاع عدد الأطباء الموافق عليهم في هذا التخصص"""

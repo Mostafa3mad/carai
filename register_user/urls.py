@@ -2,6 +2,10 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import SpecializationViewSet,DoctorViewSet,LogoutView,LoginView
 from rest_registration.api.views import login,register,change_password,profile
+from django.conf.urls.static import static
+from django.conf import settings
+
+
 
 app_name = "register_user"
 router = DefaultRouter()
@@ -22,4 +26,4 @@ urlpatterns = [
 
     path('', include(router.urls)),
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
