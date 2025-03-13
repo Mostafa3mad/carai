@@ -1,5 +1,14 @@
-GET http://127.0.0.1:8000/accounts/api/auth/profile/ HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM5OTc5MTc1LCJpYXQiOjE3Mzk5Nzg4NzUsImp0aSI6Ijk5NTFmMTNiODljZTQ0MDc4ZjViZGI1YWJmMDI4OWY3IiwidXNlcl9pZCI6MzV9.wVtFZ6Z4AsqqVlrmDLYmFMVvN_uwC8eMqO0ghzsJKwI
-accept: application/json
+#GET http://127.0.0.1:8000/accounts/api/auth/profile/ HTTP/1.1
+#Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM5OTc5MTc1LCJpYXQiOjE3Mzk5Nzg4NzUsImp0aSI6Ijk5NTFmMTNiODljZTQ0MDc4ZjViZGI1YWJmMDI4OWY3IiwidXNlcl9pZCI6MzV9.wVtFZ6Z4AsqqVlrmDLYmFMVvN_uwC8eMqO0ghzsJKwI
+#accept: application/json
 
+
+POST https://mostafa3mad.pythonanywhere.com/api/logout/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQxODE2OTM4LCJpYXQiOjE3NDE4MTY2MzgsImp0aSI6IjkwNGU3ZmRkMzEzODQxNWFhNTdhY2JhZTJjYmJjMTVkIiwidXNlcl9pZCI6MX0.9_o3srCF8angk62iR8GdeJNRL0jev-lSvBAjKI4-GmU
+Accept: application/json
+Content-Type: application/json
+
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc0MTkwMzAzOCwiaWF0IjoxNzQxODE2NjM4LCJqdGkiOiJlZjc0ZDJjZjI2Yzk0MjMyOTNhZDcxYzFlMWQ2MzZkYyIsInVzZXJfaWQiOjF9.0w0tEUOvmhbQvAVxLna-7gRFalM5YrtTdNb3sL8SzAY"
+}
 

@@ -14,5 +14,5 @@ __pycache__/
 *.pyc
 *.pyo
 *.swp
-
 db.sqlite3
+/static/

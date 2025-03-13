@@ -37,7 +37,7 @@ class LogoutView(APIView):
             return Response({"detail": "Successfully logged out"}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({"error": "Invalid Token"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid token or other issue occurred", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
