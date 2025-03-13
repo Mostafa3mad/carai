@@ -27,8 +27,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include('register_user.urls',namespace='register_user')),
-    path('',include('rating.urls',namespace='rating')),
-    path('',include('appointments.urls',namespace='appointments')),
+    # path('',include('rating.urls',namespace='rating')),
+    # path('',include('appointments.urls',namespace='appointments')),
 
 
 
