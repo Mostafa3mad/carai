@@ -247,7 +247,7 @@ REST_REGISTRATION = {
     "RESET_PASSWORD_VERIFICATION_PERIOD": timedelta(minutes=20),
     "RESET_PASSWORD_VERIFICATION_ONE_TIME_USE": True,
 
-    "RESET_PASSWORD_VERIFICATION_URL": "http://127.0.0.1:8000/api/reset-password/",
+    "RESET_PASSWORD_VERIFICATION_URL": "https://mostafa3mad.pythonanywhere.com/api/reset-password/",
     # ✅ **قوالب الإيميلات**
     'RESET_PASSWORD_VERIFICATION_EMAIL_TEMPLATES': {
         'body': 'rest_registration/reset_password/body.txt',
