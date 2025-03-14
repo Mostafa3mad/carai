@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 # from decouple import config
 import os
+from datetime import timedelta
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -221,7 +224,7 @@ REST_FRAMEWORK = {
 REST_REGISTRATION = {
     "REGISTER_VERIFICATION_ENABLED": False,
     "REGISTER_EMAIL_VERIFICATION_ENABLED": False,
-    "RESET_PASSWORD_VERIFICATION_ENABLED": False,
+    "RESET_PASSWORD_VERIFICATION_ENABLED": True,
     'LOGIN_RETRIEVE_TOKEN': True,
     'AUTH_TOKEN_MANAGER_CLASS': 'register_user.auth_backend.AuthJWTManager',
     'REGISTER_AUTHENTICATION_CLASSES': (
@@ -229,6 +232,28 @@ REST_REGISTRATION = {
     ),
     'REGISTER_SERIALIZER_CLASS': 'register_user.serializers.CustomRegisterUserSerializer',
     'REGISTER_OUTPUT_SERIALIZER_CLASS': 'register_user.serializers.CustomRegisterUserSerializer',
+
+    'USER_LOGIN_FIELDS': ['email'],
+    'USER_LOGIN_FIELDS_UNIQUE_CHECK_ENABLED': True,
+
+
+
+
+
+    #reset password
+    "VERIFICATION_FROM_EMAIL": "ks0894976@gmail.com",
+
+    # 🔹 صلاحية روابط إعادة تعيين كلمة المرور
+    "RESET_PASSWORD_VERIFICATION_PERIOD": timedelta(minutes=20),
+    "RESET_PASSWORD_VERIFICATION_ONE_TIME_USE": True,
+
+    "RESET_PASSWORD_VERIFICATION_URL": "http://127.0.0.1:8000/api/reset-password/",
+    # ✅ **قوالب الإيميلات**
+    'RESET_PASSWORD_VERIFICATION_EMAIL_TEMPLATES': {
+        'body': 'rest_registration/reset_password/body.txt',
+        'subject': 'rest_registration/reset_password/subject.txt'
+    },
+
 
 }
 
@@ -250,3 +275,14 @@ SIMPLE_JWT = {
 
 }
 # CORS_ALLOW_CREDENTIALS = True
+
+
+
+# ✅ **تأكد من إعدادات الإيميل**
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ks0894976@gmail.com'
+EMAIL_HOST_PASSWORD = 'oiyq qksu gvta obak'  # استخدم "App Password"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

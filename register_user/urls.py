@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import SpecializationViewSet,DoctorViewSet,LogoutView,LoginView
-from rest_registration.api.views import login,register,change_password,profile
+from rest_registration.api.views import login,register,change_password,profile,reset_password,send_reset_password_link,register_email,verify_email,verify_registration
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -24,6 +24,8 @@ urlpatterns = [
     path('api/change-password/', change_password, name='change-password'),
     path('api/profile/', profile, name='profile'),
 
-    path('', include(router.urls)),
+    path('', include(router.urls)),    # ✅ **إضافة مسارات إعادة تعيين كلمة المرور وتغييرها**
+    path("api/reset-password/", reset_password, name="reset-password"),
+    path("api/send-reset-password-link/", send_reset_password_link, name="send-reset-password-link"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
