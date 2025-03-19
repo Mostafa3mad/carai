@@ -14,6 +14,8 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
+from .serializers import ContactUsSerializer
+from django.core.mail import send_mail
 
 
 
@@ -93,3 +95,26 @@ class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 
+class ContactUsView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ContactUsSerializer(data=request.data)
+        if serializer.is_valid():
+            # استخراج البيانات
+            name = serializer.validated_data['name']
+            email = serializer.validated_data['email']
+            subject = serializer.validated_data['subject']
+            message = serializer.validated_data['message']
+
+            # إرسال البريد الإلكتروني
+            send_mail(
+                subject=f"New Contact Form Submission: {subject}",
+                message=f"Name: {name}\nEmail: {email}\nMessage: {message}",
+                from_email=email,
+                recipient_list=['ks0894976@gmail.com'],
+            )
+
+            # إرجاع رسالة نجاح
+            return Response({"message": "Your message has been sent successfully!"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

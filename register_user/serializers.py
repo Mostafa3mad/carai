@@ -162,3 +162,10 @@ class SpecializationDetailSerializer(serializers.ModelSerializer):
         """إرجاع قائمة الأطباء الموافق عليهم فقط داخل هذا التخصص"""
         approved_doctors = CustomUser.objects.filter(specialization=obj, role='doctor', is_approved=True)
         return DoctorSerializer(approved_doctors, many=True).data
+
+
+class ContactUsSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    email = serializers.EmailField()
+    subject = serializers.CharField(max_length=200)
+    message = serializers.CharField()
