@@ -125,7 +125,7 @@ class DoctorReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DoctorReview
-        fields = ['patient_username', 'rating', 'comment', 'created_at']
+        fields = ['id','patient_username', 'rating', 'comment', 'created_at']
         ref_name = 'RegisterUserDoctorReviewSerializer'  # تحديد ref_name بشكل صريح
 
 # show Specialization with doctor is_approved
