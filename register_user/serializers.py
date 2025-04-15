@@ -113,9 +113,14 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
         if getattr(instance, "role", None) == "doctor":
             return {
                 "message": f"Welcome, Dr. {instance.username}. Your account is successfully registered!",
-                "note": "Your profile is under review by the administrator."
+                "note": "Your profile is under review by the administrator.",
+
+
             }
-        return {"message": f"Welcome, mr. {instance.username} Your account has been registered successfully!"}
+        return {"message": f"Welcome, mr. {instance.username} Your account has been registered successfully!",
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                }
 
 
 #rate serializers
@@ -132,7 +137,7 @@ class DoctorReviewSerializer(serializers.ModelSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     reviews = DoctorReviewSerializer(source='doctor_reviews', many=True, read_only=True)  # إضافة التقييمات للطبيب
     specialization = serializers.CharField(source='specialization.name', read_only=True)
-    profile_picture = serializers.ImageField(read_only=True)  # إضافة الصورة
+    profile_picture = serializers.ImageField(read_only=True)
 
     class Meta:
         model = CustomUser
