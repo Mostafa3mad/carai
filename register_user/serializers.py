@@ -72,6 +72,12 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
     consultation_price = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
     location = serializers.CharField(max_length=255, required=False)
 
+    bio = serializers.CharField(required=False, allow_blank=True)
+    latitude = serializers.FloatField(required=False)
+    longitude = serializers.FloatField(required=False)
+
+
+
     def validate(self, attrs):
         role = attrs.get('role')
         if role == 'doctor':
@@ -143,10 +149,12 @@ class DoctorReviewSerializer(serializers.ModelSerializer):
     patient_username = serializers.CharField(source='patient.username', read_only=True)
     rating = serializers.IntegerField()
     profile_picture = serializers.ImageField(source='patient.profile_picture', read_only=True)
+    first_name = serializers.CharField(source='patient.first_name', read_only=True)
+    last_name = serializers.CharField(source='patient.last_name', read_only=True)
 
     class Meta:
         model = DoctorReview
-        fields = ['id','profile_picture','patient_username', 'rating', 'comment', 'created_at']
+        fields = ['id','profile_picture','patient_username','first_name','last_name','rating', 'comment', 'created_at']
         ref_name = 'RegisterUserDoctorReviewSerializer'  # تحديد ref_name بشكل صريح
 
 # show Specialization with doctor is_approved
@@ -157,7 +165,7 @@ class DoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id','profile_picture','username', 'email', 'specialization', 'consultation_price', 'location', 'reviews']
+        fields = ['id','profile_picture','username','first_name','last_name','email', 'specialization', 'consultation_price', 'location','bio','latitude','longitude', 'reviews']
 
 
 

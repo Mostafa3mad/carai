@@ -26,7 +26,7 @@ class IsApprovedFilter(admin.SimpleListFilter):
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('profile_picture_thumbnail','username', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender','role','specialization','is_approved','is_active', 'date_joined')
+    list_display = ('profile_picture_thumbnail','username', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender','bio','latitude','longitude','role','specialization','is_approved','is_active', 'date_joined')
     search_fields = ('username', 'email')
     list_filter = ('is_active', 'gender', 'role', 'specialization', IsApprovedFilter)  # إضافة الفلتر الجديد
     ordering = ('-date_joined',)

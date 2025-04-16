@@ -17,8 +17,9 @@ class CustomUser(AbstractUser):
     consultation_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # سعر الكشف
     location = models.CharField(max_length=255, null=True, blank=True)
     is_approved = models.BooleanField(default=True)
-
-
+    bio= models.TextField(null=True, blank=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True, default='profile_pics/default_profile_pic.jpg')
 
 
