@@ -36,9 +36,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # إضافة بيانات المستخدم إلى الـ response
         data['user_id'] = self.user.id
         data['username'] = self.user.username
+        data['first_name'] = self.user.first_name
+        data['last_name'] = self.user.last_name
+
         data['role'] = self.user.role
 
+        # هنا بنضيف رابط صورة البروفايل
+        request = self.context.get('request')  # Get request from context
+        if request is not None:
+            profile_pic_url = request.build_absolute_uri(self.user.profile_picture.url) if self.user.profile_picture else None
+        else:
+            profile_pic_url = self.user.profile_picture.url if self.user.profile_picture else None
 
+        data['profile_picture'] = profile_pic_url
 
 
         if self.user.role == 'doctor' and not self.user.is_approved:
@@ -89,6 +99,10 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
         specialization = validated_data.pop('specialization', None) if validated_data.get('role') == 'doctor' else None
         user = super().create(validated_data)
 
+
+        if not user.profile_picture or str(user.profile_picture) in ['None', '']:
+            user.profile_picture = 'profile_pics/default_profile_pic.jpg'
+
         if user.role == 'doctor':
             user.is_approved = False
         else:
@@ -114,7 +128,8 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
             return {
                 "message": f"Welcome, Dr. {instance.username}. Your account is successfully registered!",
                 "note": "Your profile is under review by the administrator.",
-
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
 
             }
         return {"message": f"Welcome, mr. {instance.username} Your account has been registered successfully!",
@@ -127,10 +142,11 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
 class DoctorReviewSerializer(serializers.ModelSerializer):
     patient_username = serializers.CharField(source='patient.username', read_only=True)
     rating = serializers.IntegerField()
+    profile_picture = serializers.ImageField(source='patient.profile_picture', read_only=True)
 
     class Meta:
         model = DoctorReview
-        fields = ['id','patient_username', 'rating', 'comment', 'created_at']
+        fields = ['id','profile_picture','patient_username', 'rating', 'comment', 'created_at']
         ref_name = 'RegisterUserDoctorReviewSerializer'  # تحديد ref_name بشكل صريح
 
 # show Specialization with doctor is_approved

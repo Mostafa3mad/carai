@@ -82,7 +82,7 @@ class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.filter(role='doctor', is_approved=True)
+    queryset = CustomUser.objects.filter(role='doctor', is_approved=True).order_by('id')
     serializer_class = DoctorSerializer
     pagination_class = DoctorPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
