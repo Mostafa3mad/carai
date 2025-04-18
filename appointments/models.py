@@ -1,5 +1,6 @@
 from django.db import models
 from register_user.models import CustomUser
+from datetime import date
 
 
 
@@ -23,12 +24,13 @@ class Appointment(models.Model):
 
     patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='appointments')
     doctor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='doctor_appointments')
-    weekday = models.ForeignKey(Weekday, on_delete=models.CASCADE)  # إضافة هذا الحقل لربط اليوم
+    appointment_date = models.DateField(default=date.today)  # 👈 ضفنا default مؤقت
     appointment_time = models.TimeField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"Appointment of {self.patient.username} with {self.doctor.username} on {self.weekday}"
+        day_name = self.appointment_date.strftime("%A")
+        return f"Appointment of {self.patient.username} with {self.doctor.username} on {day_name} at {self.appointment_time}"
 
 
 class DoctorAvailability(models.Model):

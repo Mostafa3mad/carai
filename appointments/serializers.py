@@ -4,14 +4,13 @@ from datetime import datetime
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient = serializers.CharField(source='patient.username', read_only=True)
-    doctor = serializers.CharField(source='doctor.username', read_only=True)  # عرض اسم الطبيب
+    doctor = serializers.CharField(source='doctor.username', read_only=True)
     status = serializers.CharField(read_only=True)
-    day = serializers.CharField(write_only=True)  # اليوم مثل Sunday
-    time = serializers.CharField(write_only=True)  # الموعد مثل 06:00:00
+    patient_picture = serializers.ImageField(source='patient.profile_picture', read_only=True)
 
     class Meta:
         model = Appointment
-        fields = ['id', 'patient', 'doctor', 'status', 'day', 'time']
+        fields = ['id', 'patient','patient_picture', 'doctor', 'status', 'appointment_date', 'appointment_time']
 
     def create(self, validated_data):
         """
@@ -41,29 +40,23 @@ class WeekdaySerializer(serializers.ModelSerializer):
 
 class DoctorAvailabilitySerializer(serializers.ModelSerializer):
     doctor = serializers.CharField(source='doctor.username', read_only=True)
-    days_of_week = serializers.ListField(
-        child=serializers.CharField(max_length=20),
-        write_only=True
-    )
+    days_of_week = serializers.CharField(write_only=True)  # 👈 بدّل ListField بـ CharField
 
     class Meta:
         model = DoctorAvailability
         fields = ['id', 'doctor', 'available_from', 'available_to', 'days_of_week']
 
     def create(self, validated_data):
-        days_of_week = validated_data.pop('days_of_week', [])
+        # افصل الأيام
+        days_string = validated_data.pop('days_of_week', '')
+        day_names = [d.strip() for d in days_string.split(',') if d.strip()]
+
         instance = super().create(validated_data)
-
-        # إضافة الأيام المتاحة للمواعيد
-        instance.days_of_week.set(
-            Weekday.objects.filter(name__in=days_of_week)
-        )
-
+        instance.days_of_week.set(Weekday.objects.filter(name__in=day_names))
         return instance
 
     def to_representation(self, instance):
-        """عرض أسماء الأيام في استجابة الـ API"""
-        representation = super().to_representation(instance)
-        # تحويل الـ ManyToManyField إلى أسماء الأيام مباشرة
-        representation['days_of_week'] = [day.name for day in instance.days_of_week.all()]
-        return representation
+        rep = super().to_representation(instance)
+        rep['days_of_week'] = [day.name for day in instance.days_of_week.all()]
+        return rep
+
