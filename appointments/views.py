@@ -113,6 +113,21 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Appointment.objects.filter(patient=user).order_by('-appointment_date', '-appointment_time')
 
+    @action(detail=True, methods=['post'], url_path='simulate_payment')
+    def simulate_payment(self, request, pk=None):
+        appointment = self.get_object()
+
+        if appointment.patient != request.user:
+            return Response({"error": "لا يمكنك الدفع لهذا الموعد"}, status=403)
+
+        if appointment.payment_status == 'paid':
+            return Response({"message": "تم الدفع مسبقًا"}, status=400)
+
+        appointment.payment_status = 'paid'
+        appointment.status = 'confirmed'
+        appointment.save()
+
+        return Response({"message": "✅ تم الدفع بنجاح وتم تأكيد الموعد."})
 
     @action(detail=False, methods=['get', 'post'])
     def doctor_availability(self, request):
@@ -183,7 +198,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
                     appointment_time=appointment_time,
 
-                    status__in=["pending", "confirmed", "completed"]
+                    status__in=["completed"]
 
                 )
 
@@ -200,7 +215,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
                     appointment_time=appointment_time,
 
-                    status='pending'
+                    status='pending',
+
+                    payment_status='pending'
 
                 )
 
@@ -208,8 +225,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
                 return Response({
 
-                    "message": "تم حجز المعاد بنجاح",
+                    "message": "تم حجز المعاد بنجاح يرجى اكمال الدفع لتاكيد الحجز .",
 
-                    "doctor_availability": availability_data
+                    # "doctor_availability": availability_data
 
                 }, status=201)

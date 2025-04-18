@@ -21,13 +21,21 @@ class Appointment(models.Model):
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
-
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+    ]
     patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='appointments')
     doctor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='doctor_appointments')
     appointment_date = models.DateField(default=date.today)  # 👈 ضفنا default مؤقت
     appointment_time = models.TimeField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
+    payment_status = models.CharField(
+        max_length=10,
+        choices=PAYMENT_STATUS_CHOICES,
+        default='pending'
+    )
     def __str__(self):
         day_name = self.appointment_date.strftime("%A")
         return f"Appointment of {self.patient.username} with {self.doctor.username} on {day_name} at {self.appointment_time}"

@@ -7,10 +7,11 @@ class AppointmentSerializer(serializers.ModelSerializer):
     doctor = serializers.CharField(source='doctor.username', read_only=True)
     status = serializers.CharField(read_only=True)
     patient_picture = serializers.ImageField(source='patient.profile_picture', read_only=True)
+    payment_status = serializers.CharField(read_only=True)
 
     class Meta:
         model = Appointment
-        fields = ['id', 'patient','patient_picture', 'doctor', 'status', 'appointment_date', 'appointment_time']
+        fields = ['id', 'patient','patient_picture', 'doctor', 'status','payment_status', 'appointment_date', 'appointment_time']
 
     def create(self, validated_data):
         """
