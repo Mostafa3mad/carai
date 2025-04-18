@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import SpecializationViewSet,DoctorViewSet,LogoutView,LoginView,ContactUsView
+from .views import SpecializationViewSet,DoctorViewSet,LogoutView,LoginView,ContactUsView,TopDoctorsAPIView
 from rest_registration.api.views import login,register,change_password,profile,reset_password,send_reset_password_link,register_email,verify_email,verify_registration
 from django.conf.urls.static import static
 from django.conf import settings
@@ -28,5 +28,13 @@ urlpatterns = [
     path("api/reset-password/", reset_password, name="reset-password"),
     path("api/send-reset-password-link/", send_reset_password_link, name="send-reset-password-link"),
     path('api/contact-us/', ContactUsView.as_view(), name='contact_us'),
+
+    #top doctor
+    path('api/top-doctors/', TopDoctorsAPIView.as_view(), name='top-doctors'),
+
+
+
+
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

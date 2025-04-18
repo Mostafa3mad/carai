@@ -16,7 +16,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
 from .serializers import ContactUsSerializer
 from django.core.mail import send_mail
-
+from django.db.models import Avg, Count
 
 
 class LoginView(TokenObtainPairView):
@@ -118,3 +118,17 @@ class ContactUsView(APIView):
             # إرجاع رسالة نجاح
             return Response({"message": "Your message has been sent successfully!"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class TopDoctorsAPIView(APIView):
+    def get(self, request):
+        top_doctors = CustomUser.objects.annotate(
+            avg_rating=Avg('doctor_reviews__rating'),
+            total_reviews=Count('doctor_reviews')
+        ).filter(
+            total_reviews__gte=1
+        ).order_by('-avg_rating')[:5]
+
+        serializer = DoctorSerializer(top_doctors, many=True, context={'request': request})
+        return Response(serializer.data)
