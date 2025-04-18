@@ -17,7 +17,8 @@ from .serializers import CustomTokenObtainPairSerializer
 from .serializers import ContactUsSerializer
 from django.core.mail import send_mail
 from django.db.models import Avg, Count
-
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -121,7 +122,25 @@ class ContactUsView(APIView):
 
 
 class TopDoctorsAPIView(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'limit',
+                openapi.IN_QUERY,
+                description="Number of top doctors to return (default: 5)",
+                type=openapi.TYPE_INTEGER,
+                required=False
+            )
+        ]
+    )
     def get(self, request):
+
+        limit = request.query_params.get('limit', 5)
+        try:
+            limit = int(limit)
+        except ValueError:
+            limit = 5  # fallback للعدد الافتراضي لو حد بعت limit غلط
+
         top_doctors = CustomUser.objects.annotate(
             avg_rating=Avg('doctor_reviews__rating'),
             total_reviews=Count('doctor_reviews')
@@ -129,7 +148,7 @@ class TopDoctorsAPIView(APIView):
             role='doctor',
             is_approved=True,
             total_reviews__gte=1
-        ).order_by('-avg_rating')[:5]
+        ).order_by('-avg_rating')[:limit]
 
         serializer = DoctorSerializer(top_doctors, many=True, context={'request': request})
         return Response(serializer.data)
