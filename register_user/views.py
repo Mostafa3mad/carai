@@ -107,7 +107,6 @@ class ContactUsView(APIView):
             subject = serializer.validated_data['subject']
             message = serializer.validated_data['message']
 
-            # إرسال البريد الإلكتروني
             send_mail(
                 subject=f"New Contact Form Submission: {subject}",
                 message=f"Name: {name}\nEmail: {email}\nMessage: {message}",
@@ -127,6 +126,8 @@ class TopDoctorsAPIView(APIView):
             avg_rating=Avg('doctor_reviews__rating'),
             total_reviews=Count('doctor_reviews')
         ).filter(
+            role='doctor',
+            is_approved=True,
             total_reviews__gte=1
         ).order_by('-avg_rating')[:5]
 

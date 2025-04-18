@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.db.models import Avg, Count
 
 
 
@@ -162,12 +163,18 @@ class DoctorSerializer(serializers.ModelSerializer):
     reviews = DoctorReviewSerializer(source='doctor_reviews', many=True, read_only=True)  # إضافة التقييمات للطبيب
     specialization = serializers.CharField(source='specialization.name', read_only=True)
     profile_picture = serializers.ImageField(read_only=True)
+    avg_rating = serializers.SerializerMethodField()
+    total_reviews = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ['id','profile_picture','username','first_name','last_name','email', 'specialization', 'consultation_price', 'location','bio','latitude','longitude', 'reviews']
+        fields = ['id','profile_picture','username','first_name','last_name','email', 'specialization', 'consultation_price', 'location','bio','latitude','longitude', 'avg_rating', 'total_reviews', 'reviews']
 
+    def get_avg_rating(self, obj):
+        return DoctorReview.objects.filter(doctor=obj).aggregate(avg=Avg('rating'))['avg'] or 0
 
+    def get_total_reviews(self, obj):
+        return DoctorReview.objects.filter(doctor=obj).count()
 
 class SpecializationListSerializer(serializers.ModelSerializer):
     doctor_count = serializers.SerializerMethodField()
