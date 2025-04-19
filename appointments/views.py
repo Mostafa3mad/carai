@@ -6,9 +6,8 @@ from rest_framework.views import APIView
 from datetime import datetime, timedelta, date
 from django.db import transaction
 from collections import defaultdict
-from .permissions import IsPatient
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-
+from .permissions import IsPatient, IsDoctor
+from drf_spectacular.utils import extend_schema, OpenApiParameter,OpenApiResponse
 from .models import Appointment, DoctorAvailability, CustomUser, Weekday
 from .serializers import AppointmentSerializer, DoctorAvailabilitySerializer
 from .utils import (
@@ -24,16 +23,14 @@ from .utils import (
 class DoctorAvailabilityViewSet(viewsets.ModelViewSet):
     queryset = DoctorAvailability.objects.all()
     serializer_class = DoctorAvailabilitySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsDoctor]
 
     def perform_create(self, serializer):
-        if self.request.user.role != 'doctor':
-            return Response({"detail": "Only doctors can set availability."}, status=status.HTTP_403_FORBIDDEN)
+
         serializer.save(doctor=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        if self.request.user.role != 'doctor':
-            return Response({"detail": "Only doctors can view availability."}, status=status.HTTP_403_FORBIDDEN)
+
 
         doctor_availabilities = DoctorAvailability.objects.filter(doctor=request.user)
         serializer = self.get_serializer(doctor_availabilities, many=True)
@@ -52,8 +49,7 @@ class DoctorAvailabilityViewSet(viewsets.ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        if request.user.role != 'doctor':
-            return Response({"detail": "Only doctors can view their availability."}, status=status.HTTP_403_FORBIDDEN)
+
 
         availability = self.get_object()
         if availability.doctor != request.user:
@@ -64,9 +60,6 @@ class DoctorAvailabilityViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def doctor_schedule(self, request):
         doctor = request.user
-        if doctor.role != 'doctor':
-            return Response({"error": "المستخدم ليس طبيبًا"}, status=400)
-
         doctor_availabilities = DoctorAvailability.objects.filter(doctor=doctor)
         schedule_data = []
         for availability in doctor_availabilities:
@@ -84,9 +77,6 @@ class DoctorAvailabilityViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='appointments_by_day')
     def appointments_by_day(self, request):
         doctor = request.user
-        if doctor.role != 'doctor':
-            return Response({"error": "المستخدم ليس طبيبًا"}, status=403)
-
         appointments = Appointment.objects.filter(
             doctor=doctor
         ).order_by('appointment_date', 'appointment_time')
@@ -118,10 +108,10 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         appointment = self.get_object()
 
         if appointment.patient != request.user:
-            return Response({"error": "لا يمكنك الدفع لهذا الموعد"}, status=403)
+            return Response({"error": "You are not allowed to pay for this appointment"}, status=403)
 
         if appointment.payment_status == 'paid':
-            return Response({"message": "تم الدفع مسبقًا"}, status=400)
+            return Response({"message": "Payment has already been completed"}, status=400)
 
         # 🛑 تحقق من أن الموعد ما اتأكدش لمريض آخر في نفس الوقت
         conflict = Appointment.objects.filter(
@@ -133,8 +123,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         if conflict.exists():
             return Response({
-                "error": "عذرًا، تم تأكيد هذا الموعد لمريض آخر.",
-                "suggestion": "يرجى اختيار موعد آخر."
+                "error": "Sorry, this appointment has been confirmed for another patient.",
+                "suggestion": "Please choose another date."
             }, status=400)
 
         # ✅ كل شيء تمام → نؤكد الحجز
@@ -149,12 +139,19 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         patient.save()
 
         return Response({
-            "message": "✅ تم الدفع بنجاح وتم تأكيد الموعد.",
+            "message": "Payment has been made successfully and the appointment has been confirmed ✅.",
             "new_bonus": patient.bonus_points
         })
 
-
-
+    @extend_schema(
+        methods=["GET"],
+        description="إرجاع جدول التوافر للطبيب المسجل حاليًا.",
+        responses={
+            200: OpenApiResponse(
+                description="قائمة الأيام المتاحة للطبيب مع ساعات العمل"
+            )
+        }
+    )
     @action(detail=False, methods=['get', 'post'])
     def doctor_availability(self, request):
 
@@ -162,18 +159,16 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         doctor_id = request.query_params.get('doctor_id')
 
         if not doctor_id:
-            return Response({"error": "يجب إرسال doctor_id في URL"}, status=400)
+            return Response({"error": "The (doctor_id) must be sent in the URL.URL"}, status=400)
 
         try:
             doctor = CustomUser.objects.get(id=doctor_id)
         except CustomUser.DoesNotExist:
-            return Response({"error": "الطبيب غير موجود"}, status=404)
+            return Response({"error": "Doctor not found"}, status=404)
 
-        if doctor.role != 'doctor':
-            return Response({"error": "المستخدم ليس طبيبًا"}, status=400)
 
         if request.method == 'GET':
-            availability_data = get_doctor_availability_data(doctor)
+            availability_data = get_doctor_availability_data(request, doctor)
             return Response({"doctor_availability": availability_data})
 
 
@@ -186,7 +181,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             patient = request.user
 
             if not date_str or not time_str:
-                return Response({"error": "يجب إرسال appointment_date و appointment_time"}, status=400)
+                return Response({"error": "(appointment_date) and (appointment_time) are required"}, status=400)
 
             try:
 
@@ -196,10 +191,10 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
             except ValueError:
 
-                return Response({"error": "تنسيق التاريخ أو الوقت غير صالح"}, status=400)
+                return Response({"error": "Invalid date or time format"}, status=400)
 
             if appointment_date < date.today():
-                return Response({"error": "لا يمكن الحجز في تاريخ ماضي"}, status=400)
+                return Response({"error": "Cannot book an appointment in the past"}, status=400)
 
             weekday_name = get_weekday_from_date(appointment_date)
 
@@ -209,10 +204,10 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
             except Weekday.DoesNotExist:
 
-                return Response({"error": "اليوم غير موجود"}, status=400)
+                return Response({"error": "Weekday not found"}, status=400)
 
             if not is_doctor_available(doctor, weekday, appointment_time):
-                return Response({"error": "الطبيب غير متاح في هذا الموعد"}, status=400)
+                return Response({"error": "Doctor is not available at this time"}, status=400)
 
             with transaction.atomic():
 
@@ -229,7 +224,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 )
 
                 if conflict.exists():
-                    return Response({"error": "هذا الموعد محجوز بالفعل"}, status=400)
+                    return Response({"error": "This appointment slot is already booked"}, status=400)
 
                 appointment = Appointment.objects.create(
 
@@ -247,11 +242,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
                 )
 
-                availability_data = get_doctor_availability_data(doctor)
+                availability_data = get_doctor_availability_data(request, doctor)
 
                 return Response({
 
-                    "message": "تم حجز المعاد بنجاح يرجى اكمال الدفع لتاكيد الحجز .",
+                    "message": "Appointment booked successfully. Please complete the payment to confirm.",
 
                     "appointment_id": appointment.id,
 
