@@ -54,7 +54,7 @@ class DoctorReviewViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_403_FORBIDDEN)
 
         instance.delete()
-        return Response({"detail": "Review deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Review deleted successfull."}, status=status.HTTP_204_NO_CONTENT)
 
 
 class DoctorReviewsViewSet(viewsets.ReadOnlyModelViewSet):
