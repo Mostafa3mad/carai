@@ -151,7 +151,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         return Response({
             "message": "✅ تم الدفع بنجاح وتم تأكيد الموعد.",
             "new_bonus": patient.bonus_points
-        }),
+        })
 
 
 
