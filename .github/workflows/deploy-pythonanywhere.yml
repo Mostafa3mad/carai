@@ -1,0 +1,19 @@
+name: 🚀 Deploy Django to PythonAnywhere
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔁 Reload PythonAnywhere app
+        run: |
+          curl -X POST https://www.pythonanywhere.com/api/v0/user/${{ secrets.PA_USERNAME }}/webapps/${{ secrets.PA_SITE }}/reload/ \
+          -H "Authorization: Token ${{ secrets.PA_API_TOKEN }}"
