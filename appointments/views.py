@@ -123,11 +123,37 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if appointment.payment_status == 'paid':
             return Response({"message": "تم الدفع مسبقًا"}, status=400)
 
+        # 🛑 تحقق من أن الموعد ما اتأكدش لمريض آخر في نفس الوقت
+        conflict = Appointment.objects.filter(
+            doctor=appointment.doctor,
+            appointment_date=appointment.appointment_date,
+            appointment_time=appointment.appointment_time,
+            payment_status='paid',
+        ).exclude(id=appointment.id)
+
+        if conflict.exists():
+            return Response({
+                "error": "عذرًا، تم تأكيد هذا الموعد لمريض آخر.",
+                "suggestion": "يرجى اختيار موعد آخر."
+            }, status=400)
+
+        # ✅ كل شيء تمام → نؤكد الحجز
         appointment.payment_status = 'paid'
         appointment.status = 'confirmed'
         appointment.save()
 
-        return Response({"message": "✅ تم الدفع بنجاح وتم تأكيد الموعد."})
+
+        # ✅ أضف 5 نقاط بونص للمريض
+        patient = appointment.patient
+        patient.bonus_points += 5
+        patient.save()
+
+        return Response({
+            "message": "✅ تم الدفع بنجاح وتم تأكيد الموعد.",
+            "new_bonus": patient.bonus_points
+        }),
+
+
 
     @action(detail=False, methods=['get', 'post'])
     def doctor_availability(self, request):
@@ -198,14 +224,14 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
                     appointment_time=appointment_time,
 
-                    status__in=["completed"]
+                    status__in=["pending", "confirmed", "completed"]
 
                 )
 
                 if conflict.exists():
                     return Response({"error": "هذا الموعد محجوز بالفعل"}, status=400)
 
-                Appointment.objects.create(
+                appointment = Appointment.objects.create(
 
                     patient=patient,
 
@@ -227,6 +253,6 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
                     "message": "تم حجز المعاد بنجاح يرجى اكمال الدفع لتاكيد الحجز .",
 
-                    # "doctor_availability": availability_data
+                    "appointment_id": appointment.id,
 
                 }, status=201)

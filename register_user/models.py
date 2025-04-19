@@ -21,6 +21,7 @@ class CustomUser(AbstractUser):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True, default='profile_pics/default_profile_pic.jpg')
+    bonus_points = models.PositiveIntegerField(default=0)
 
 
     def __str__(self):

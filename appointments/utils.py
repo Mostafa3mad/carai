@@ -52,7 +52,7 @@ def get_doctor_availability_data(doctor):
             appointments = [
                 a for a in Appointment.objects.filter(
                     doctor=doctor,
-                    status__in=["pending", "confirmed", "completed"]
+                    status__in=["completed"]
                 )
                 if a.appointment_date.strftime("%A") == day.name
             ]
