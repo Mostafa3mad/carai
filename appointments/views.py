@@ -139,7 +139,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         # ✅ كل شيء تمام → نؤكد الحجز
         appointment.payment_status = 'paid'
-        appointment.status = 'confirmed'
+        appointment.status = 'completed'
         appointment.save()
 
 
