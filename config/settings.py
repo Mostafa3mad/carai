@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     'django_filters',
     'rating',
     'appointments',
-    'model_ai',
 
 
 
