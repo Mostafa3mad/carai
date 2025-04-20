@@ -29,11 +29,6 @@ urlpatterns = [
     path('', include('register_user.urls',namespace='register_user')),
     path('',include('rating.urls',namespace='rating')),
     path('',include('appointments.urls',namespace='appointments')),
-
-
-
-
-
-
+    path('api/', include('model_ai.urls',namespace='model_ai')),
 
 ]
