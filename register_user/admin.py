@@ -35,7 +35,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('username', 'password', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender', 'profile_picture')
+            'fields': ('username', 'password', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender','bonus_points', 'profile_picture')
         }),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'is_approved')
