@@ -5,13 +5,14 @@ from datetime import datetime
 class AppointmentSerializer(serializers.ModelSerializer):
     patient = serializers.CharField(source='patient.username', read_only=True)
     doctor = serializers.CharField(source='doctor.username', read_only=True)
+    doctor_id = serializers.IntegerField(source='doctor.id', read_only=True)
     status = serializers.CharField(read_only=True)
     patient_picture = serializers.ImageField(source='patient.profile_picture', read_only=True)
     payment_status = serializers.CharField(read_only=True)
 
     class Meta:
         model = Appointment
-        fields = ['id', 'patient','patient_picture', 'doctor', 'status','payment_status', 'appointment_date', 'appointment_time']
+        fields = ['id', 'patient','patient_picture', 'doctor','doctor_id', 'status','payment_status', 'appointment_date', 'appointment_time']
 
     def create(self, validated_data):
         """
