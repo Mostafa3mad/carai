@@ -39,3 +39,11 @@ class Specialization(models.Model):
     def __str__(self):
         return self.name
 
+class PatientHistory(models.Model):
+    patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="medical_history", limit_choices_to={'role': 'patient'})
+    doctor = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name="written_histories", limit_choices_to={'role': 'doctor'})
+    notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"History for {self.patient.username} by {self.doctor.username if self.doctor else 'Unknown Doctor'}"

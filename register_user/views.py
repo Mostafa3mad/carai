@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Specialization, CustomUser
+from .models import Specialization, CustomUser, PatientHistory
 from .serializers import SpecializationListSerializer, SpecializationDetailSerializer, DoctorSerializer
 from .filters import SpecializationFilter, DoctorFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,12 +13,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer
+from .serializers import CustomTokenObtainPairSerializer,PatientHistorySerializer
 from .serializers import ContactUsSerializer
 from django.core.mail import send_mail
 from django.db.models import Avg, Count
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.exceptions import NotFound
 
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -152,3 +153,45 @@ class TopDoctorsAPIView(APIView):
 
         serializer = DoctorSerializer(top_doctors, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+class AddPatientHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, patient_id):
+        doctor = request.user
+        if doctor.role != 'doctor':
+            return Response({"error": "Only doctors can add medical history."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # جلب المريض باستخدام patient_id
+        patient = get_object_or_404(CustomUser, id=patient_id, role='patient')
+
+        # استخدام الـ Serializer لحفظ التاريخ الطبي
+        serializer = PatientHistorySerializer(data=request.data)
+        if serializer.is_valid():
+            # ربط السجل الطبي بالمريض والطبيب
+            serializer.save(patient=patient, doctor=doctor)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PatientHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, patient_id):
+        user = request.user
+
+        # التأكد من أن المريض أو الطبيب يمكنه الوصول للتاريخ المرضي
+        patient = get_object_or_404(CustomUser, id=patient_id, role='patient')
+
+        # إذا كان المستخدم هو الطبيب، يمكنه رؤية كل السجل الطبي لجميع المرضى
+        if user.role == 'doctor':
+            history = PatientHistory.objects.filter(patient=patient)
+        # إذا كان المستخدم هو المريض نفسه، يمكنه رؤية سجله الطبي فقط
+        elif user.role == 'patient' and user == patient:
+            history = PatientHistory.objects.filter(patient=patient)
+        else:
+            return Response({"error": "You are not authorized to view this patient's history."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = PatientHistorySerializer(history, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -30,4 +30,8 @@ urlpatterns = [
     path('',include('rating.urls',namespace='rating')),
     path('',include('appointments.urls',namespace='appointments')),
 
+
+
+    # path('', include('model_ai.urls'), name='model_ai'),
+
 ]

@@ -1,6 +1,6 @@
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_registration.api.serializers import DefaultRegisterUserSerializer,DefaultLoginSerializer
-from .models import CustomUser, Specialization
+from .models import CustomUser, Specialization , PatientHistory
 from rest_framework import serializers
 from rating.models import DoctorReview
 from rest_framework.exceptions import AuthenticationFailed
@@ -206,3 +206,12 @@ class ContactUsSerializer(serializers.Serializer):
     email = serializers.EmailField()
     subject = serializers.CharField(max_length=200)
     message = serializers.CharField()
+
+
+class PatientHistorySerializer(serializers.ModelSerializer):
+    doctor_username = serializers.CharField(source='doctor.username', read_only=True)
+    patient_username = serializers.CharField(source='patient.username', read_only=True)
+
+    class Meta:
+        model = PatientHistory
+        fields = ['id', 'doctor', 'notes', 'created_at', 'doctor_username', 'patient_username']
