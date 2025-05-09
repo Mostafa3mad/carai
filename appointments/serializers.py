@@ -4,7 +4,7 @@ from datetime import datetime
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient = serializers.CharField(source='patient.username', read_only=True)
-    patient_id = serializers.CharField(source='patient.id', read_only=True)
+    patient_id = serializers.IntegerField(source='patient.id', read_only=True)
     doctor = serializers.CharField(source='doctor.username', read_only=True)
     doctor_id = serializers.IntegerField(source='doctor.id', read_only=True)
     status = serializers.CharField(read_only=True)
