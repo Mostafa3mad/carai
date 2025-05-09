@@ -111,6 +111,10 @@ class CustomRegisterUserSerializer(DefaultRegisterUserSerializer):
         if not user.profile_picture or str(user.profile_picture) in ['None', '']:
             user.profile_picture = 'profile_pics/default_profile_pic.jpg'
 
+
+        if not user.profile_certificate or str(user.profile_certificate) in ['None', '']:
+            user.profile_certificate = 'profile_certificate/default_profile_certificate_pic.jpg'
+
         if user.role == 'doctor':
             user.is_approved = False
         else:

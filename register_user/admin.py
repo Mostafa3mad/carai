@@ -26,9 +26,9 @@ class IsApprovedFilter(admin.SimpleListFilter):
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('id','profile_picture_thumbnail','username', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender','bio','latitude','longitude','role','specialization','is_approved','is_active','bonus_points', 'date_joined')
+    list_display = ('id', 'profile_picture_thumbnail', 'profile_certificate_thumbnail', 'username', 'first_name', 'last_name', 'email', 'phone_number', 'age', 'gender', 'bio', 'latitude', 'longitude', 'role', 'specialization', 'is_approved', 'is_active', 'bonus_points', 'date_joined',)
     search_fields = ('username', 'email')
-    list_filter = ('is_active', 'gender', 'role', 'specialization', IsApprovedFilter)  # إضافة الفلتر الجديد
+    list_filter = ('is_active', 'gender', 'role', 'specialization', IsApprovedFilter)
     ordering = ('-date_joined',)
     actions = ['approve_doctors']
 
@@ -59,6 +59,14 @@ class CustomUserAdmin(admin.ModelAdmin):
         return "No image"
 
     profile_picture_thumbnail.short_description = 'Profile Picture'
+    def profile_certificate_thumbnail(self, obj):
+        if obj.profile_certificate:
+            return mark_safe(f'<img src="{obj.profile_certificate.url}" width="50" height="50" />')
+        return "No certificate"
+
+    profile_certificate_thumbnail.short_description = 'Profile Certificate'
+
+
 
 @admin.register(Specialization)
 class SpecializationAdmin(admin.ModelAdmin):

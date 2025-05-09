@@ -21,12 +21,19 @@ class CustomUser(AbstractUser):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True, default='profile_pics/default_profile_pic.jpg')
+    profile_certificate = models.ImageField(upload_to='profile_certificate/', null=True, blank=True)
     bonus_points = models.PositiveIntegerField(default=0)
 
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
 
+    def save(self, *args, **kwargs):
+        if self.role != 'doctor':
+            self.profile_certificate = None
+        elif self.role == 'doctor':
+            self.profile_certificate = 'profile_certificate/default_profile_certificate_pic.jpg'
+        super().save(*args, **kwargs)
 
 #Specialization
 class Specialization(models.Model):
