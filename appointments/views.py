@@ -10,6 +10,7 @@ from .permissions import IsPatient, IsDoctor
 from drf_spectacular.utils import extend_schema, OpenApiParameter,OpenApiResponse
 from .models import Appointment, DoctorAvailability, CustomUser, Weekday
 from .serializers import AppointmentSerializer, DoctorAvailabilitySerializer
+import uuid
 from .utils import (
     get_weekday_from_date,
     is_doctor_available,
@@ -251,3 +252,35 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                     "appointment_id": appointment.id,
 
                 }, status=201)
+
+
+
+class GenerateTemporaryCouponView(APIView):
+    permission_classes = [IsAuthenticated, IsPatient]
+
+    def post(self, request):
+        user = request.user
+        try:
+            points_to_deduct = int(request.data.get("points"))
+        except (TypeError, ValueError):
+            return Response({"error": "برجاء إرسال رقم صحيح في الحقل (points)"}, status=400)
+
+        if points_to_deduct <= 0:
+            return Response({"error": "عدد النقاط يجب أن يكون أكبر من صفر"}, status=400)
+
+        if user.bonus_points < points_to_deduct:
+            return Response({"error": "لا يوجد نقاط كافية في حسابك"}, status=400)
+
+        # خصم النقاط
+        user.bonus_points -= points_to_deduct
+        user.save()
+
+        # توليد كود مؤقت
+        coupon_code = uuid.uuid4().hex[:10].upper()
+
+        return Response({
+            "message": "done create coupon code",
+            "coupon_code": coupon_code,
+            "discount_value": points_to_deduct,
+            "remaining_bonus": user.bonus_points
+        }, status=200)
